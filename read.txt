@@ -1,0 +1,6 @@
+Hey how it's going
+these data will be read by my C code
+feel free to try it out
+C is amazing 
+it's funny (love C)
+
