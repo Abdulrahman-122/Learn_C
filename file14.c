@@ -125,73 +125,73 @@
 // }
 //note: sizeof *p == sizeof(typeof(pointer)) in this case sizeof(float)
 
-#include <stdio.h>
-#include <stdlib.h>
-
-// let's read any data from any file using C
+// #include <stdio.h>
+// #include <stdlib.h>
 //
-char *readline(FILE *fp)             //FILE stands for reading files into this function using fp pointer
-{
-	 int offset =  0; 
-	 int buffsize= 4;           // our starting point for buffer (4 bytes) then we increase it by 4 each time 
-	char *buff;             // define a pointer called buff
-	int c;                  // define a character to act as a single character from the file
-	buff=malloc(buffsize) ;  // define allocated memory of 4 bytes to start reading the file char by char
-	if (buff== NULL) 
-		return NULL;         // in case your RAM is out of memory
-				     // so this is the golden rule (defensive programming)
-	// now let's make a loop in order to read the lines line by line (it stops at the end of each line as we put \n
-	while( c=fgetc(fp),c!='\n' && c!=EOF){
-		// fgetc take file that you want to read char by char
-		// in c  the end of file is EOF  + end of line has a terminator called: \n
-                if (offset == buffsize-1) {
-			// in case our offset at the end of the buffer in our allocated memory
-			buffsize*=2 ;   // multiply buffer by 2 -> 2*4=8 ... 16 ....32...
-			char *new_buff=realloc(buff,buffsize);
-			// realloc the memory with the new size of buffer
-			if ( new_buff == NULL){ 
-				free(buff);   // then here we check whether or not the new alllocated memory is good if failed -> free buff then Null
-				return NULL;
-			} 
-			buff=new_buff;  //successfull realloc
-		}
-		//but in case the if didn't success
-		// let's increase the offset one
-		buff[offset++]=c;   // move the offset to detect new character
-
-	}
-	//now in case we reached the end of the  file we need to free the pointer + return Null
-	if (c == EOF && offset == 0){
-		free(buff);
-		return NULL;
-	}
-	//now we need to shrink the redundant memory that new_buff added to the allocated memory
-	if(offset<buffsize-1) // that means buffsize is larger than offset
-	{
-		char *new_buff=realloc(buff,offset+1);   //realloc buffer around offset plus 1 for the terminator
-		// by default  realloc give the OS the rest of unallocated memory to it
-		if(new_buff != NULL)
-			buff=new_buff;
-		
-
-		
-}
-		buff[offset]='\0';  // now we need to put \0(backslash) as a terminator for the end of the line or file
-
-		return buff ;  //this will give the function the address of the pointer in order to loop over it to print the whole data from memory
-}
-
-int main (void) 
-{
-	FILE *fp=fopen("read.txt","r");   //define our file to be read by the function above
-	char * read_line; 
-	while ((read_line= readline(fp)) !=NULL)  // make loop to extract line by line
-	{
-		printf("%s\n",read_line); // as we know from the function above it's read line by line so we need to free that chunk of memory after reading in order to avoid any memory leaks....
-		free(read_line);  // now this will free the data from the allocated memory(in order to return the control to the os )
-		}
-	fclose(fp);    // now let's close the file in order to flushing or return the files handler from C to OS
-}
+// // let's read any data from any file using C
+// //
+// char *readline(FILE *fp)             //FILE stands for reading files into this function using fp pointer
+// {
+// 	 int offset =  0; 
+// 	 int buffsize= 4;           // our starting point for buffer (4 bytes) then we increase it by 4 each time 
+// 	char *buff;             // define a pointer called buff
+// 	int c;                  // define a character to act as a single character from the file
+// 	buff=malloc(buffsize) ;  // define allocated memory of 4 bytes to start reading the file char by char
+// 	if (buff== NULL) 
+// 		return NULL;         // in case your RAM is out of memory
+// 				     // so this is the golden rule (defensive programming)
+// 	// now let's make a loop in order to read the lines line by line (it stops at the end of each line as we put \n
+// 	while( c=fgetc(fp),c!='\n' && c!=EOF){
+// 		// fgetc take file that you want to read char by char
+// 		// in c  the end of file is EOF  + end of line has a terminator called: \n
+//                 if (offset == buffsize-1) {
+// 			// in case our offset at the end of the buffer in our allocated memory
+// 			buffsize*=2 ;   // multiply buffer by 2 -> 2*4=8 ... 16 ....32...
+// 			char *new_buff=realloc(buff,buffsize);
+// 			// realloc the memory with the new size of buffer
+// 			if ( new_buff == NULL){ 
+// 				free(buff);   // then here we check whether or not the new alllocated memory is good if failed -> free buff then Null
+// 				return NULL;
+// 			} 
+// 			buff=new_buff;  //successfull realloc
+// 		}
+// 		//but in case the if didn't success
+// 		// let's increase the offset one
+// 		buff[offset++]=c;   // move the offset to detect new character
+//
+// 	}
+// 	//now in case we reached the end of the  file we need to free the pointer + return Null
+// 	if (c == EOF && offset == 0){
+// 		free(buff);
+// 		return NULL;
+// 	}
+// 	//now we need to shrink the redundant memory that new_buff added to the allocated memory
+// 	if(offset<buffsize-1) // that means buffsize is larger than offset
+// 	{
+// 		char *new_buff=realloc(buff,offset+1);   //realloc buffer around offset plus 1 for the terminator
+// 		// by default  realloc give the OS the rest of unallocated memory to it
+// 		if(new_buff != NULL)
+// 			buff=new_buff;
+//
+//
+//
+// }
+// 		buff[offset]='\0';  // now we need to put \0(backslash) as a terminator for the end of the line or file
+//
+// 		return buff ;  //this will give the function the address of the pointer in order to loop over it to print the whole data from memory
+// }
+//
+// int main (void) 
+// {
+// 	FILE *fp=fopen("read.txt","r");   //define our file to be read by the function above
+// 	char * read_line; 
+// 	while ((read_line= readline(fp)) !=NULL)  // make loop to extract line by line
+// 	{
+// 		printf("%s\n",read_line); // as we know from the function above it's read line by line so we need to free that chunk of memory after reading in order to avoid any memory leaks....
+// 		free(read_line);  // now this will free the data from the allocated memory(in order to return the control to the os )
+// 		}
+// 	fclose(fp);    // now let's close the file in order to flushing or return the files handler from C to OS
+// }
 
 // now we can read any file by this script
 // the output of this file:
@@ -202,7 +202,37 @@ int main (void)
 // C is amazing 
 // it's funny (love C)
 //
-// pause: realloc() with NULL(p87)
 
 
+// if you want to use realloc without malloc
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+// int main(void) 
+// {
+// 	int *p=NULL;
+// 	int length=0;
+// 	while(length!=10) {
+// 		length+=1;
+// 		p=realloc(p,sizeof *p * length);
+// 		printf("we Allocated %d spots\n",length);
+// 	}
+// 	free(p);
+// }
+//now we need to use aligned-alloc func to allien our data in size 64bit
+//note: if your cpu is 64bit -> then  it can handle 8 bytes at chunk or store it there
+//aligned_alloc(alignment,size to store in it) 
+//alignment -> number to the power 2 (2,4,8,...)
+//size -> can be multiple of alignment(32,64....)
+int main() 
+{
+	char *p=aligned_alloc(64,256);  // 4*64=256
+	strcpy(p,"Hey how is going??\nMaybe this is a large chunk of memory");
+	printf("%s\n",p);
+	free(p);
+}
+//look at the file => aligned_alloc.txt
+
+
+//the end

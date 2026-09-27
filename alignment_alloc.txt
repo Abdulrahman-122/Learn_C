@@ -1,0 +1,27 @@
+. What is Memory Alignment?
+
+Think of your computer's memory (RAM) as a long street with numbered houses (addresses).
+
+The CPU doesn't read memory one single byte at a time. Instead, it grabs memory in larger "chunks" or "words" (usually 4 bytes on 32-bit systems, or 8 bytes on 64-bit systems).
+
+- Aligned Memory: If an 8-byte variable starts at an address that is a multiple of 8 (like address `0`, `8`, `16`, `24`), the CPU can grab it in one single cycle 🏎️.
+- Misaligned Memory: If that same 8-byte variable starts at an awkward address (like address `3`), it straddles two different chunks. The CPU now has to do two memory reads and piece them together, slowing things down 🐢.
+
+## 2. Why standard `malloc` is usually enough
+
+As the text mentions, standard functions like `malloc()`, `calloc()`, and `realloc()` are already smart. They automatically return memory aligned to the strictest fundamental alignment required by your CPU (usually 8 or 16 bytes). For 99% of programs, you never have to think about this.
+
+## 3. When do you actually need `aligned_alloc()`?
+
+You need custom alignment when working with specialized hardware features or deeply optimized code:
+
+- Vector Instructions (SIMD): Modern CPUs use special instructions (like AVX or SSE) to process massive amounts of data at once. These instructions often _strictly require_ data to be aligned on 32-byte or 64-byte boundaries, or the program will instantly crash.
+- Low-Level Hardware (Drivers/Embedded): Certain hardware devices (like network cards or GPUs) copy data directly from RAM (DMA) and require the memory buffer to start at a very specific boundary (e.g., a page boundary like 4096 bytes).
+- Cache Line Matching: CPU caches often load data in 64-byte chunks. Aligning your data to 64 bytes prevents performance loss caused by data spilling across cache lines.
+
+## 4. Rules for using `aligned_alloc()`
+
+To use `aligned_alloc(alignment, size)`, you must follow two strict rules:
+
+1. The alignment must be a valid power of 2 (e.g., `2`, `4`, `8`, `16`, `32`, `64`).
+2. The total size you request must be a multiple of the alignment. If you want a 64-byte alignment, your total size _must_ be 64, 128, 192, 256, etc.
